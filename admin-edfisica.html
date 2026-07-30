@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Administrativo | Sistema de Educação Física</title>
+    <meta
+      name="description"
+      content="Área administrativa para gestão de alunos e fichas de treino."
+    />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="icon" type="image/png" href="assets/icones/icon-logo.png" />
+    <img
+      id="img-logo-pdf"
+      src="assets/imagens/logo-sem-fundo.png"
+      alt=""
+      aria-hidden="true"
+      style="display: none"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="page-loader" id="page-loader">
+      <div class="page-loader__spinner"></div>
+      <p>Carregando sistema...</p>
+    </div>
+
+    <div class="auth-screen" id="view-login">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <div class="auth-brand__icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h1 class="auth-brand__title">Painel Administrativo</h1>
+          <p class="auth-brand__subtitle">
+            Gestão de alunos e fichas de treino
+          </p>
+        </div>
+
+        <form id="form-login-admin" novalidate>
+          <div class="field">
+            <label for="admin-usuario">Usuário</label>
+            <div class="input-wrap">
+              <i class="icon-left fa-solid fa-user"></i>
+              <input
+                type="text"
+                id="admin-usuario"
+                class="has-icon"
+                placeholder="Seu usuário"
+                autocomplete="username"
+                required
+              />
+            </div>
+            <div class="field-error">Informe o usuário.</div>
+          </div>
+
+          <div class="field">
+            <label for="admin-senha">Senha</label>
+            <div class="input-wrap">
+              <i class="icon-left fa-solid fa-lock"></i>
+              <button
+                type="button"
+                class="toggle-visibility"
+                data-toggle-for="admin-senha"
+                aria-label="Mostrar senha"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <input
+                type="password"
+                id="admin-senha"
+                class="has-icon has-toggle"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+            <div class="field-error">Informe a senha.</div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-block"
+            id="btn-entrar-admin"
+          >
+            <span class="spinner"></span>
+            <span class="btn-label-text">Entrar</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <p
+          class="text-center text-muted"
+          style="margin-top: 20px; font-size: 12.5px"
+        >
+          É aluno?
+          <a
+            href="index.html"
+            style="color: var(--color-primary); font-weight: 600"
+            >Acesse sua ficha de treino</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <div class="app-shell hidden" id="view-admin-area">
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__brand-icon">
+            <i class="fa-solid fa-dumbbell"></i>
+          </div>
+          <div class="sidebar__brand-text">
+            <strong>EdFísica Manager</strong>
+            <span>Painel administrativo</span>
+          </div>
+        </div>
+
+        <nav class="sidebar__nav">
+          <button class="sidebar__nav-item is-active" data-view="dashboard">
+            <i class="fa-solid fa-chart-line"></i> Dashboard
+          </button>
+          <button class="sidebar__nav-item" data-view="alunos">
+            <i class="fa-solid fa-users"></i> Alunos
+          </button>
+          <button class="sidebar__nav-item" data-view="treino">
+            <i class="fa-solid fa-clipboard-list"></i> Fichas de treino
+          </button>
+          <button class="sidebar__nav-item" data-view="avaliacoes">
+            <i class="fa-solid fa-heart-pulse"></i> Avaliações
+          </button>
+          <button class="sidebar__nav-item" data-view="configuracoes">
+            <i class="fa-solid fa-gear"></i> Configurações
+          </button>
+        </nav>
+
+        <div class="sidebar__footer">
+          <div class="sidebar__user">
+            <div class="sidebar__user-avatar" id="admin-avatar-iniciais">A</div>
+            <div>
+              <div class="sidebar__user-name" id="admin-nome-sidebar">
+                Administrador
+              </div>
+              <div class="sidebar__user-role" id="sidebar-user-role">
+                Profissional de Ed. Física
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-block btn-adm" id="btn-sair-admin">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="main">
+        <header class="topbar">
+          <div style="display: flex; align-items: center; gap: 14px">
+            <button class="topbar__menu-btn" id="btn-toggle-sidebar">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <div>
+              <div class="topbar__title" id="topbar-titulo">Dashboard</div>
+              <div class="topbar__subtitle" id="topbar-subtitulo">
+                Visão geral do sistema
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="content">
+          <section class="view is-active" id="view-dashboard">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-card__icon stat-card__icon--blue">
+                  <i class="fa-solid fa-users"></i>
+                </div>
+                <div>
+                  <div class="stat-card__value" id="stat-total-alunos">0</div>
+                  <div class="stat-card__label">Alunos cadastrados</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card__icon stat-card__icon--green">
+                  <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <div>
+                  <div class="stat-card__value" id="stat-com-treino">0</div>
+                  <div class="stat-card__label">Com ficha de treino</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card__icon stat-card__icon--gray">
+                  <i class="fa-solid fa-clipboard"></i>
+                </div>
+                <div>
+                  <div class="stat-card__value" id="stat-sem-treino">0</div>
+                  <div class="stat-card__label">Sem ficha de treino</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card__icon stat-card__icon--blue">
+                  <i class="fa-solid fa-chart-simple"></i>
+                </div>
+                <div>
+                  <div class="stat-card__value" id="stat-idade-media">0</div>
+                  <div class="stat-card__label">Idade média</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card__header">
+                <div class="card__title">Últimos alunos cadastrados</div>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table" id="tabela-ultimos-alunos">
+                  <thead>
+                    <tr>
+                      <th>Aluno</th>
+                      <th>ID</th>
+                      <th>Idade</th>
+                      <th>Ficha</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="view" id="view-alunos">
+            <div class="card">
+              <div class="card__header">
+                <div class="card__title">
+                  Alunos <span id="contador-alunos">(0)</span>
+                </div>
+                <button class="btn btn-success" id="btn-novo-aluno">
+                  <i class="fa-solid fa-plus"></i> Cadastrar aluno
+                </button>
+              </div>
+              <div class="toolbar" style="margin-bottom: 18px">
+                <div class="search-box">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input
+                    type="text"
+                    id="input-pesquisa-alunos"
+                    placeholder="Pesquisar por nome ou ID..."
+                  />
+                </div>
+                <button class="btn btn-ghost" id="btn-atualizar-alunos">
+                  <i class="fa-solid fa-rotate"></i> Atualizar
+                </button>
+              </div>
+
+              <div class="table-wrap">
+                <table class="data-table" id="tabela-alunos">
+                  <thead>
+                    <tr>
+                      <th>Aluno</th>
+                      <th>ID</th>
+                      <th>Idade</th>
+                      <th>Ficha de treino</th>
+                      <th style="text-align: right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="empty-state hidden" id="alunos-vazio">
+                <i class="fa-solid fa-user-slash"></i>
+                <p>Nenhum aluno encontrado.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="view" id="view-treino">
+            <div class="card" id="card-selecionar-aluno-treino">
+              <div class="card__header">
+                <div class="card__title">Selecione um aluno</div>
+              </div>
+              <div class="field" style="max-width: 420px; margin-bottom: 0">
+                <label for="select-aluno-treino">Aluno</label>
+                <select id="select-aluno-treino">
+                  <option value="">Selecione...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="card hidden" id="card-editor-treino">
+              <div class="treino-header">
+                <div class="treino-aluno-info">
+                  <h3 id="treino-nome-aluno">—</h3>
+                  <p id="treino-idade-aluno">—</p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap">
+                  <button
+                    class="btn btn-outline btn-adm"
+                    id="btn-duplicar-treino"
+                  >
+                    <i class="fa-solid fa-copy"></i> Duplicar de outro aluno
+                  </button>
+                  <button
+                    class="btn btn-outline btn-adm"
+                    id="btn-exportar-pdf-admin"
+                  >
+                    <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+                  </button>
+                </div>
+              </div>
+
+              <div class="treino-table-wrap">
+                <table class="treino-table" id="tabela-treino-editor">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <div class="treino-toolbar">
+                <button class="btn btn-ghost-user btn-adm" id="btn-add-coluna">
+                  <i class="fa-solid fa-table-columns"></i> Nova coluna
+                </button>
+                <button class="btn btn-ghost-user btn-adm" id="btn-add-linha">
+                  <i class="fa-solid fa-list"></i> Nova linha
+                </button>
+                <button
+                  class="btn btn-primary btn-adm"
+                  id="btn-salvar-treino"
+                  style="margin-left: auto"
+                >
+                  <span class="spinner"></span>
+                  <span class="btn-label-text"
+                    ><i class="fa-solid fa-floppy-disk"></i> Salvar ficha</span
+                  >
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="view" id="view-avaliacoes">
+            <div class="card">
+              <div class="card__header">
+                <div class="card__title">Selecione um aluno</div>
+              </div>
+              <div class="field" style="max-width: 420px; margin-bottom: 0">
+                <label for="select-aluno-avaliacao">Aluno</label>
+                <select id="select-aluno-avaliacao">
+                  <option value="">Selecione...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="card hidden" id="avaliacoes-card-lista">
+              <div class="card__header">
+                <div class="card__title">
+                  Avaliações <span id="avaliacoes-total">(0)</span>
+                </div>
+                <button class="btn btn-success" id="btn-nova-avaliacao">
+                  <i class="fa-solid fa-plus"></i> Nova avaliação
+                </button>
+              </div>
+
+              <div class="table-wrap">
+                <table class="data-table" id="tabela-avaliacoes">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Peso</th>
+                      <th>IMC</th>
+                      <th>Classificação</th>
+                      <th>% Gordura</th>
+                      <th>M. Magra</th>
+                      <th style="text-align: right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="empty-state hidden" id="avaliacoes-vazio">
+                <i class="fa-solid fa-clipboard"></i>
+                <p>Nenhuma avaliação encontrada para este aluno.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="view" id="view-configuracoes">
+            <div class="card" style="max-width: 480px">
+              <div class="card__header">
+                <div class="card__title">Seus dados profissionais</div>
+              </div>
+              <form id="form-personal-info" novalidate>
+                <div class="field">
+                  <label for="personal-nome">Nome do personal</label>
+                  <input
+                    type="text"
+                    id="personal-nome"
+                    placeholder="Seu nome completo"
+                    maxlength="120"
+                  />
+                  <div class="field-error">Informe seu nome.</div>
+                </div>
+                <div class="field">
+                  <label for="personal-cref">CREF</label>
+                  <input
+                    type="text"
+                    id="personal-cref"
+                    placeholder="Ex: CREF 000000-G/SP"
+                    maxlength="30"
+                  />
+                  <div class="field-error">Informe seu CREF.</div>
+                </div>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="btn-salvar-personal-info"
+                >
+                  <span class="spinner"></span>
+                  <span class="btn-label-text">Salvar dados</span>
+                </button>
+              </form>
+            </div>
+
+            <div class="card" style="max-width: 480px">
+              <div class="card__header">
+                <div class="card__title">Alterar senha de administrador</div>
+              </div>
+              <form id="form-alterar-senha" novalidate>
+                <div class="field">
+                  <label for="senha-atual">Senha atual</label>
+                  <input type="password" id="senha-atual" required />
+                  <div class="field-error">Informe a senha atual.</div>
+                </div>
+                <div class="field">
+                  <label for="senha-nova">Nova senha</label>
+                  <input
+                    type="password"
+                    id="senha-nova"
+                    required
+                    minlength="6"
+                  />
+                  <div class="field-error">
+                    A nova senha deve ter ao menos 6 caracteres.
+                  </div>
+                  <div class="field-hint">Mínimo de 6 caracteres.</div>
+                </div>
+                <div class="field">
+                  <label for="senha-nova-confirma">Confirmar nova senha</label>
+                  <input type="password" id="senha-nova-confirma" required />
+                  <div class="field-error">As senhas não coincidem.</div>
+                </div>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="btn-salvar-senha"
+                >
+                  <span class="spinner"></span>
+                  <span class="btn-label-text">Salvar nova senha</span>
+                </button>
+              </form>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-aluno" class="modal-overlay">
+      <div class="modal modal--wide">
+        <div class="modal__header">
+          <div class="modal__title" id="modal-aluno-titulo">
+            Cadastrar aluno
+          </div>
+          <button class="modal__close" data-modal-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-aluno" novalidate>
+          <div class="modal__body">
+            <input type="hidden" id="aluno-form-modo" value="criar" />
+            <input type="hidden" id="aluno-form-id-original" />
+
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="aluno-form-id">ID único</label>
+                <input
+                  type="text"
+                  id="aluno-form-id"
+                  placeholder="Ex: AL-0001"
+                  required
+                />
+                <div class="field-error">Informe um ID único para o aluno.</div>
+              </div>
+              <div class="field">
+                <label for="aluno-form-idade">Idade</label>
+                <input
+                  type="text"
+                  id="aluno-form-idade"
+                  inputmode="numeric"
+                  placeholder="Ex: 27"
+                  required
+                />
+                <div class="field-error">Informe uma idade válida.</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="aluno-form-nome">Nome completo</label>
+              <input
+                type="text"
+                id="aluno-form-nome"
+                placeholder="Nome do aluno"
+                required
+              />
+              <div class="field-error">Informe o nome do aluno.</div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="aluno-form-sexo">Sexo</label>
+                <select id="aluno-form-sexo">
+                  <option value="">Selecione...</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="aluno-form-nascimento">Data de nascimento</label>
+                <input type="date" id="aluno-form-nascimento" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="aluno-form-altura">Altura (m)</label>
+                <input
+                  type="text"
+                  id="aluno-form-altura"
+                  inputmode="decimal"
+                  placeholder="Ex: 1.75"
+                />
+                <div class="field-hint">Use ponto como separador decimal.</div>
+              </div>
+              <div class="field">
+                <label for="aluno-form-objetivo">Objetivo</label>
+                <input
+                  type="text"
+                  id="aluno-form-objetivo"
+                  placeholder="Ex: Hipertrofia, emagrecimento..."
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="aluno-form-senha">
+                Senha
+                <span
+                  class="text-muted"
+                  id="label-senha-opcional"
+                  style="font-weight: 400; display: none"
+                  >(deixe em branco para manter a atual)</span
+                >
+              </label>
+              <div class="input-wrap">
+                <button
+                  type="button"
+                  class="toggle-visibility"
+                  data-toggle-for="aluno-form-senha"
+                  aria-label="Mostrar senha"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <input
+                  type="password"
+                  id="aluno-form-senha"
+                  class="has-toggle"
+                  placeholder="••••••••"
+                />
+              </div>
+              <div class="field-error">Informe uma senha para o aluno.</div>
+            </div>
+
+            <div class="field" style="margin-bottom: 0">
+              <label for="aluno-form-obs">Observações</label>
+              <textarea
+                id="aluno-form-obs"
+                placeholder="Restrições, lesões, observações gerais..."
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal__footer">
+            <button type="button" class="btn btn-danger" data-modal-close>
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-success" id="btn-salvar-aluno">
+              <span class="spinner"></span>
+              <span class="btn-label-text">Salvar aluno</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="modal-avaliacao" class="modal-overlay">
+      <div class="modal modal--wide">
+        <div class="modal__header">
+          <div class="modal__title" id="avaliacao-modal-titulo">
+            Nova avaliação física
+          </div>
+          <button class="modal__close" data-modal-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-avaliacao" novalidate>
+          <div class="modal__body">
+            <input type="hidden" id="avaliacao-form-modo" value="criar" />
+            <input type="hidden" id="avaliacao-form-id" />
+            <input type="hidden" id="avaliacao-step-atual" value="1" />
+            <input type="text" id="avaliacao-imc" style="display: none" />
+            <input
+              type="text"
+              id="avaliacao-classificacao-imc"
+              style="display: none"
+            />
+
+            <div class="step-indicators">
+              <div class="step-indicator active" data-step="1">
+                Dados Básicos
+              </div>
+              <div class="step-indicator" data-step="2">Tronco</div>
+              <div class="step-indicator" data-step="3">Membros</div>
+              <div class="step-indicator" data-step="4">Dobras</div>
+              <div class="step-indicator" data-step="5">Revisão</div>
+            </div>
+
+            <div class="step-content active" data-step="1">
+              <div class="form-grid-3">
+                <div class="field">
+                  <label for="avaliacao-data">Data</label>
+                  <input type="date" id="avaliacao-data" required />
+                </div>
+                <div class="field">
+                  <label for="avaliacao-peso">Peso (kg) *</label>
+                  <input
+                    type="text"
+                    id="avaliacao-peso"
+                    inputmode="decimal"
+                    placeholder="Ex: 72.5"
+                    required
+                  />
+                </div>
+                <div class="field">
+                  <label for="avaliacao-altura-imc">Altura (m)</label>
+                  <input
+                    type="text"
+                    id="avaliacao-altura-imc"
+                    inputmode="decimal"
+                    placeholder="Ex: 1.75"
+                  />
+                </div>
+              </div>
+              <div class="form-grid-2">
+                <div class="field">
+                  <label for="avaliacao-gordura">% Gordura</label>
+                  <div class="input-wrap">
+                    <input
+                      type="text"
+                      id="avaliacao-gordura"
+                      class="has-suffix"
+                      inputmode="decimal"
+                      placeholder="Ex: 15.5"
+                    />
+                    <span class="input-suffix">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="avaliacao-massa-magra">Massa Magra (kg)</label>
+                  <input
+                    type="text"
+                    id="avaliacao-massa-magra"
+                    inputmode="decimal"
+                    placeholder="Ex: 58.2"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="step-content" data-step="2">
+              <div class="eval-table-wrap">
+                <table class="eval-form-table" id="tabela-medidas-tronco">
+                  <thead>
+                    <tr>
+                      <th>Medida</th>
+                      <th>Valor (cm)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="step-content" data-step="3">
+              <div class="eval-table-wrap">
+                <table class="eval-form-table" id="tabela-medidas-membros">
+                  <thead>
+                    <tr>
+                      <th>Medida</th>
+                      <th>Valor (cm)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="step-content" data-step="4">
+              <div class="eval-table-wrap">
+                <table class="eval-form-table" id="tabela-dobras-avaliacao">
+                  <thead>
+                    <tr>
+                      <th>Dobra</th>
+                      <th>Valor (mm)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="step-content" data-step="5">
+              <div class="eval-metrics" id="avaliacao-revisao-resumo">
+                <div class="eval-highlight">
+                  <span class="eval-highlight__label">Peso</span
+                  ><span class="eval-highlight__value" id="rev-peso">—</span>
+                </div>
+                <div class="eval-highlight">
+                  <span class="eval-highlight__label">% Gordura</span
+                  ><span class="eval-highlight__value" id="rev-gordura">—</span>
+                </div>
+                <div class="eval-highlight">
+                  <span class="eval-highlight__label">M. Magra</span
+                  ><span class="eval-highlight__value" id="rev-massa-magra"
+                    >—</span
+                  >
+                </div>
+                <div class="eval-highlight">
+                  <span class="eval-highlight__label">IMC</span
+                  ><span class="eval-highlight__value" id="rev-imc">—</span>
+                </div>
+                <div class="eval-highlight">
+                  <span class="eval-highlight__label">Classificação</span
+                  ><span class="eval-highlight__value" id="rev-classificacao"
+                    >—</span
+                  >
+                </div>
+              </div>
+              <div
+                id="avaliacao-revisao-medidas"
+                style="margin-top: var(--space-4)"
+              ></div>
+              <div
+                id="avaliacao-revisao-dobras"
+                style="margin-top: var(--space-4)"
+              ></div>
+            </div>
+          </div>
+          <div class="modal__footer">
+            <button type="button" class="btn btn-danger" data-modal-close>
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost-user"
+              id="btn-voltar-avaliacao"
+            >
+              Voltar
+            </button>
+            <div style="flex: 1"></div>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="btn-proximo-avaliacao"
+            >
+              Próximo
+            </button>
+            <button
+              type="submit"
+              class="btn btn-success"
+              id="btn-salvar-avaliacao"
+              style="display: none"
+            >
+              <span class="spinner"></span>
+              <span class="btn-label-text">Salvar avaliação</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="modal-avaliacao-detalhes" class="modal-overlay">
+      <div class="modal modal--wide">
+        <div class="modal__header">
+          <div class="modal__title">Detalhes da avaliação</div>
+          <button
+            class="modal__close"
+            id="btn-fechar-detalhe-avaliacao"
+            data-modal-close
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal__body">
+          <div class="eval-metrics">
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Aluno</span>
+              <span class="eval-highlight__value" id="detalhe-avaliacao-aluno"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Data</span>
+              <span class="eval-highlight__value" id="detalhe-avaliacao-data"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Peso</span>
+              <span class="eval-highlight__value" id="detalhe-avaliacao-peso"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">% Gordura</span>
+              <span class="eval-highlight__value" id="detalhe-avaliacao-gordura"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Massa Magra</span>
+              <span
+                class="eval-highlight__value"
+                id="detalhe-avaliacao-massa-magra"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">IMC</span>
+              <span class="eval-highlight__value" id="detalhe-avaliacao-imc"
+                >—</span
+              >
+            </div>
+          </div>
+
+          <div
+            style="
+              margin-top: var(--space-4);
+              display: flex;
+              align-items: center;
+              gap: var(--space-3);
+            "
+          >
+            <span
+              style="
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--color-text-muted);
+              "
+              >Classificação:</span
+            >
+            <span class="badge imc-badge" id="detalhe-avaliacao-classificacao"
+              >—</span
+            >
+          </div>
+
+          <hr
+            style="
+              margin: var(--space-5) 0;
+              border: none;
+              border-top: 1px solid var(--color-gray-200);
+            "
+          />
+
+          <h4
+            style="
+              font-size: 14px;
+              color: var(--color-primary);
+              margin-bottom: var(--space-3);
+            "
+          >
+            Medidas Corporais
+          </h4>
+          <div id="detalhe-avaliacao-medidas"></div>
+
+          <hr
+            style="
+              margin: var(--space-5) 0;
+              border: none;
+              border-top: 1px solid var(--color-gray-200);
+            "
+          />
+
+          <h4
+            style="
+              font-size: 14px;
+              color: var(--color-primary);
+              margin-bottom: var(--space-3);
+            "
+          >
+            Dobras Cutâneas
+          </h4>
+          <div id="detalhe-avaliacao-dobras"></div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-danger" data-modal-close>
+            Fechar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="btn-exportar-pdf-avaliacao"
+          >
+            <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-duplicar-treino" class="modal-overlay">
+      <div class="modal">
+        <div class="modal__header">
+          <div class="modal__title">Duplicar ficha de outro aluno</div>
+          <button class="modal__close" data-modal-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal__body">
+          <div class="field" style="margin-bottom: 0">
+            <label for="select-duplicar-origem">Copiar ficha de:</label>
+            <select id="select-duplicar-origem">
+              <option value="">Selecione um aluno...</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-ghost" data-modal-close>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="btn-confirmar-duplicar"
+          >
+            <i class="fa-solid fa-copy"></i> Duplicar ficha
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-confirmacao" class="modal-overlay">
+      <div class="modal">
+        <div class="modal__header">
+          <div class="modal__title">Confirmar ação</div>
+          <button class="modal__close" data-modal-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal__body text-center">
+          <div
+            class="modal__icon-badge js-confirm-icon modal__icon-badge--danger"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </div>
+          <p class="js-confirm-msg">Tem certeza?</p>
+        </div>
+        <div class="modal__footer">
+          <button class="btn btn-ghost js-confirm-cancel">Cancelar</button>
+          <button class="btn btn-danger js-confirm-ok">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="js/crypto.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>

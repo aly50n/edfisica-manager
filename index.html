@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minha Ficha de Treino | Sistema de Educação Física</title>
+    <meta
+      name="description"
+      content="Acesse sua ficha de treino personalizada."
+    />
+
+    <link rel="icon" type="image/png" href="assets/icones/icon-logo.png" />
+    <img
+      id="img-logo-pdf"
+      src="assets/imagens/logo-sem-fundo.png"
+      alt=""
+      aria-hidden="true"
+      style="display: none"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="page-loader" id="page-loader">
+      <div class="page-loader__spinner"></div>
+      <p>Carregando sistema...</p>
+    </div>
+
+    <div class="auth-screen" id="view-login">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <img
+            class="auth-brand__icon"
+            src="assets/imagens/logo-monograma.png"
+            alt="Logo"
+          />
+          <h1 class="auth-brand__title">Minha Ficha de Treino</h1>
+          <p class="auth-brand__subtitle">
+            Entre com seu ID e senha para ver seu treino
+          </p>
+        </div>
+
+        <form id="form-login-aluno" novalidate>
+          <div class="field">
+            <label for="aluno-id">ID do aluno</label>
+            <div class="input-wrap">
+              <i class="icon-left fa-solid fa-id-badge"></i>
+              <input
+                type="text"
+                id="aluno-id"
+                class="has-icon"
+                placeholder="Ex: AL-0001"
+                autocomplete="username"
+                required
+              />
+            </div>
+            <div class="field-error">Informe seu ID de aluno.</div>
+          </div>
+
+          <div class="field">
+            <label for="aluno-senha">Senha</label>
+            <div class="input-wrap">
+              <i class="icon-left fa-solid fa-lock"></i>
+              <button
+                type="button"
+                class="toggle-visibility"
+                data-toggle-for="aluno-senha"
+                aria-label="Mostrar senha"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <input
+                type="password"
+                id="aluno-senha"
+                class="has-icon has-toggle"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+            <div class="field-error">Informe sua senha.</div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-block"
+            id="btn-entrar-aluno"
+          >
+            <span class="spinner"></span>
+            <span class="btn-label-text">Entrar</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <p
+          class="text-center text-muted"
+          style="margin-top: 20px; font-size: 12.5px"
+        >
+          É o profissional responsável?
+          <a
+            href="admin-edfisica.html"
+            style="color: var(--color-primary); font-weight: 600"
+            >Acesse a área administrativa</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <div class="app-shell hidden" id="view-aluno-area">
+      <div class="main" style="width: 100%">
+        <header class="topbar">
+          <div class="topbar__left">
+            <img class="topbar__logo" src="assets/imagens/logo-monograma.png" alt="">
+            <div>
+              <div class="topbar__title">Minha Ficha de Treino</div>
+              <div class="topbar__subtitle" id="aluno-nome-topbar">—</div>
+            </div>
+          </div>
+          <button class="btn btn-ghost-user btn-sm" id="btn-sair-aluno">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair
+          </button>
+        </header>
+
+        <div class="content" id="aluno-content">
+          <div class="personal-card hidden" id="personal-card">
+            <div class="personal-card__icon">
+              <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div class="personal-card__info">
+              <div class="personal-card__label">Seu personal trainer</div>
+              <div class="personal-card__name" id="personal-nome-aluno">—</div>
+              <div class="personal-card__cref" id="personal-cref-aluno">—</div>
+            </div>
+          </div>
+
+          <div class="treino-readonly-note">
+            <i class="fa-solid fa-circle-info"></i>
+            Esta é uma visualização somente leitura. Apenas o profissional
+            responsável pode alterar seus dados.
+          </div>
+
+          <h2 class="section-title">DADOS DO ALUNO</h2>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card__icon stat-card__icon--blue">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div>
+                <div class="stat-card__value" id="aluno-nome-card">—</div>
+                <div class="stat-card__label">Nome</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card__icon stat-card__icon--green">
+                <i class="fa-solid fa-cake-candles"></i>
+              </div>
+              <div>
+                <div class="stat-card__value" id="aluno-idade-card">—</div>
+                <div class="stat-card__label">Idade</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card__icon stat-card__icon--gray">
+                <i class="fa-solid fa-id-badge"></i>
+              </div>
+              <div>
+                <div class="stat-card__value" id="aluno-id-card">—</div>
+                <div class="stat-card__label">ID</div>
+              </div>
+            </div>
+            <div class="stat-card hidden" id="aluno-sexo-card">
+              <div class="stat-card__icon stat-card__icon--blue">
+                <i class="fa-solid fa-venus-mars"></i>
+              </div>
+              <div>
+                <div class="stat-card__value" id="aluno-sexo-valor">—</div>
+                <div class="stat-card__label">Sexo</div>
+              </div>
+            </div>
+            <div class="stat-card hidden" id="aluno-altura-card">
+              <div class="stat-card__icon stat-card__icon--green">
+                <i class="fa-solid fa-ruler-vertical"></i>
+              </div>
+              <div>
+                <div class="stat-card__value" id="aluno-altura-valor">—</div>
+                <div class="stat-card__label">Altura</div>
+              </div>
+            </div>
+            <div class="stat-card hidden" id="aluno-objetivo-card">
+              <div class="stat-card__icon stat-card__icon--gray">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <div>
+                <div class="stat-card__value" id="aluno-objetivo-valor">—</div>
+                <div class="stat-card__label">Objetivo</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="aluno-observacoes-card" style="display: none">
+            <div class="card__header">
+              <div class="card__title">Observações</div>
+            </div>
+            <p
+              id="aluno-observacoes-texto"
+              class="text-muted"
+              style="font-size: 13.5px"
+            ></p>
+          </div>
+
+          <div class="update-badge hidden" id="update-badge">
+            <i class="fa-solid fa-calendar-check"></i>
+            Treino atualizado em: <span id="ultima-atualizacao-aluno">—</span>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <div class="card__title">Ficha de treino</div>
+              <button
+                class="btn btn-ghost-user btn-sm"
+                id="btn-exportar-pdf-aluno"
+              >
+                <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+              </button>
+            </div>
+            <div class="treino-table-wrap">
+              <table class="treino-table" id="tabela-treino-aluno">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="empty-state hidden" id="treino-vazio-aluno">
+              <i class="fa-solid fa-clipboard"></i>
+              <p>
+                Nenhuma ficha de treino cadastrada ainda. Fale com seu
+                professor.
+              </p>
+            </div>
+          </div>
+
+          <div class="card hidden" id="card-avaliacoes-aluno">
+            <div class="card__header">
+              <div class="card__title">Avaliações Físicas</div>
+            </div>
+            <div class="table-wrap">
+              <table class="eval-list-table" id="tabela-avaliacoes-aluno">
+                <thead>
+                  <tr>
+                    <th>Ações</th>
+                    <th>Peso</th>
+                    <th>IMC</th>
+                    <th>M. Magra</th>
+                    <th>% Gordura</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div
+              class="empty-state"
+              id="avaliacoes-aluno-vazio"
+              style="display: none"
+            >
+              <i class="fa-solid fa-clipboard"></i>
+              <p>Nenhuma avaliação física registrada ainda.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-avaliacao-detalhes-aluno" class="modal-overlay">
+      <div class="modal modal--wide">
+        <div class="modal__header">
+          <div class="modal__title">Detalhes da avaliação</div>
+          <button class="modal__close" data-modal-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal__body">
+          <div class="eval-metrics">
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Data</span>
+              <span class="eval-highlight__value" id="aluno-avaliacao-data"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Peso</span>
+              <span class="eval-highlight__value" id="aluno-avaliacao-peso"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">% Gordura</span>
+              <span class="eval-highlight__value" id="aluno-avaliacao-gordura"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Massa Magra</span>
+              <span
+                class="eval-highlight__value"
+                id="aluno-avaliacao-massa-magra"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">IMC</span>
+              <span class="eval-highlight__value" id="aluno-avaliacao-imc"
+                >—</span
+              >
+            </div>
+            <div class="eval-highlight">
+              <span class="eval-highlight__label">Classificação</span>
+              <span
+                class="eval-highlight__value"
+                id="aluno-avaliacao-classificacao"
+                >—</span
+              >
+            </div>
+          </div>
+
+          <hr
+            style="
+              margin: var(--space-5) 0;
+              border: none;
+              border-top: 1px solid var(--color-gray-200);
+            "
+          />
+
+          <h4
+            style="
+              font-size: 14px;
+              color: var(--color-primary);
+              margin-bottom: var(--space-3);
+            "
+          >
+            Medidas Corporais
+          </h4>
+          <div id="aluno-avaliacao-medidas"></div>
+
+          <hr
+            style="
+              margin: var(--space-5) 0;
+              border: none;
+              border-top: 1px solid var(--color-gray-200);
+            "
+          />
+
+          <h4
+            style="
+              font-size: 14px;
+              color: var(--color-primary);
+              margin-bottom: var(--space-3);
+            "
+          >
+            Dobras Cutâneas
+          </h4>
+          <div id="aluno-avaliacao-dobras"></div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-danger" data-modal-close>
+            Fechar
+          </button>
+          <button class="btn btn-primary" id="btn-exportar-pdf-avaliacao-aluno">
+            <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-confirmacao" class="modal-overlay">
+      <div class="modal">
+        <div class="modal__header">
+          <div class="modal__title">Confirmar ação</div>
+          <button class="modal__close" data-modal-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal__body text-center">
+          <div
+            class="modal__icon-badge js-confirm-icon modal__icon-badge--danger"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </div>
+          <p class="js-confirm-msg">Tem certeza?</p>
+        </div>
+        <div class="modal__footer">
+          <button class="btn btn-ghost-user js-confirm-cancel">Cancelar</button>
+          <button class="btn btn-danger js-confirm-ok">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="js/crypto.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/aluno.js"></script>
+  </body>
+</html>
