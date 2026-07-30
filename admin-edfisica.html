@@ -367,6 +367,9 @@
                 <div class="card__title">
                   Avaliações <span id="avaliacoes-total">(0)</span>
                 </div>
+                <button class="btn btn-outline btn-adm hidden" id="btn-relatorio-comparativo-admin">
+                  <i class="fa-solid fa-chart-simple"></i> Relatório Comparativo (PDF)
+                </button>
                 <button class="btn btn-success" id="btn-nova-avaliacao">
                   <i class="fa-solid fa-plus"></i> Nova avaliação
                 </button>
@@ -961,6 +964,48 @@
             id="btn-confirmar-duplicar"
           >
             <i class="fa-solid fa-copy"></i> Duplicar ficha
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-comparativo-avaliacoes" class="modal-overlay">
+      <div class="modal modal--wide">
+        <div class="modal__header">
+          <div class="modal__title">Selecionar Avaliações para Comparar</div>
+          <button class="modal__close" data-modal-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal__body">
+          <p class="text-muted" style="margin-bottom: var(--space-4); font-size: 13px;">
+            Selecione ao menos 2 avaliações para gerar o relatório comparativo.
+          </p>
+          <div class="field" style="margin-bottom: var(--space-4); max-width: 300px;">
+            <label for="filtro-data-texto">Filtrar por data</label>
+            <input type="text" id="filtro-data-texto" placeholder="Digite a data (ex: 23/04)">
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="tabela-selecao-avaliacoes">
+              <thead>
+                <tr>
+                  <th style="width: 40px;"></th>
+                  <th>Data</th>
+                  <th>Peso</th>
+                  <th>IMC</th>
+                  <th>Classificação</th>
+                  <th>% Gordura</th>
+                  <th>M. Magra</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-danger" data-modal-close>Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btn-gerar-comparativo">
+            <i class="fa-solid fa-file-pdf"></i> Gerar Relatório
           </button>
         </div>
       </div>

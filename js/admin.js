@@ -1116,6 +1116,16 @@
       .addEventListener("click", exportarAvaliacaoPdf);
 
     document
+      .getElementById("btn-relatorio-comparativo-admin")
+      .addEventListener("click", abrirModalComparativo);
+
+    document
+      .getElementById("btn-gerar-comparativo")
+      .addEventListener("click", gerarComparativoPdf);
+
+    UI.registrarFechamentoModal(document.getElementById("modal-comparativo-avaliacoes"));
+
+    document
       .getElementById("btn-proximo-avaliacao")
       .addEventListener("click", proximoPasso);
     document
@@ -1163,6 +1173,13 @@
     document.getElementById("avaliacoes-card-lista").classList.remove("hidden");
     document.getElementById("avaliacoes-total").textContent =
       `(${cacheAvaliacoes.length})`;
+
+    const btnComparativo = document.getElementById("btn-relatorio-comparativo-admin");
+    if (cacheAvaliacoes.length >= 2) {
+      btnComparativo.classList.remove("hidden");
+    } else {
+      btnComparativo.classList.add("hidden");
+    }
 
     if (cacheAvaliacoes.length === 0) {
       document.getElementById("tabela-avaliacoes").classList.add("hidden");
@@ -1874,6 +1891,366 @@
 
     doc.save("avaliacao-fisica-" + aluno.id + ".pdf");
     UI.toast("success", "PDF gerado com sucesso.");
+  }
+
+  var selectedComparativoIds = {};
+
+  function preencherTabelaComparativo(lista) {
+    var tbody = document.querySelector("#tabela-selecao-avaliacoes tbody");
+    tbody.innerHTML = "";
+
+    lista.forEach(function (av) {
+      var tr = document.createElement("tr");
+      var dataStr = av.data ? new Date(av.data).toLocaleDateString("pt-BR") : "—";
+      var imcClass = obterClasseIMC(av.classificacaoIMC);
+      var checked = selectedComparativoIds[av.id] ? "checked" : "";
+      tr.innerHTML =
+        '<td><input type="checkbox" class="check-avaliacao" value="' + av.id + '" ' + checked + '></td>' +
+        '<td>' + dataStr + '</td>' +
+        '<td><strong>' + (av.peso || "—") + '</strong> kg</td>' +
+        '<td>' + (av.imc || "—") + '</td>' +
+        '<td><span class="badge imc-badge ' + imcClass + '">' + (av.classificacaoIMC || "—") + '</span></td>' +
+        '<td>' + (av.percentualGordura || "—") + '%</td>' +
+        '<td>' + (av.massaMagra || "—") + ' kg</td>';
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll(".check-avaliacao").forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        if (this.checked) {
+          selectedComparativoIds[this.value] = true;
+          var ids = Object.keys(selectedComparativoIds);
+          if (ids.length > 2) {
+            var toRemove = null;
+            for (var i = 0; i < ids.length; i++) {
+              if (ids[i] !== this.value) {
+                toRemove = ids[i];
+                break;
+              }
+            }
+            delete selectedComparativoIds[toRemove];
+            var cbUncheck = tbody.querySelector('.check-avaliacao[value="' + toRemove + '"]');
+            if (cbUncheck) cbUncheck.checked = false;
+          }
+        } else {
+          delete selectedComparativoIds[this.value];
+        }
+      });
+    });
+  }
+
+  function abrirModalComparativo() {
+    if (cacheAvaliacoes.length < 2) {
+      UI.toast("warning", "Sao necessarias ao menos 2 avaliacoes.");
+      return;
+    }
+
+    var sorted = cacheAvaliacoes.slice().sort(function (a, b) {
+      return new Date(a.data) - new Date(b.data);
+    });
+
+    selectedComparativoIds = {};
+    selectedComparativoIds[sorted[sorted.length - 1].id] = true;
+    selectedComparativoIds[sorted[sorted.length - 2].id] = true;
+
+    var filtroInput = document.getElementById("filtro-data-texto");
+    filtroInput.value = "";
+    preencherTabelaComparativo(sorted);
+
+    function aplicarFiltroTexto() {
+      var termo = filtroInput.value.trim();
+      if (!termo) {
+        preencherTabelaComparativo(sorted);
+        return;
+      }
+      var filtradas = sorted.filter(function (av) {
+        if (!av.data) return false;
+        var d = new Date(av.data).toLocaleDateString("pt-BR");
+        return d.indexOf(termo) !== -1;
+      });
+      preencherTabelaComparativo(filtradas);
+    }
+
+    filtroInput.removeEventListener("input", aplicarFiltroTexto);
+    filtroInput.addEventListener("input", aplicarFiltroTexto);
+
+    UI.abrirModal("modal-comparativo-avaliacoes");
+  }
+
+  function gerarComparativoPdf() {
+    var checkboxes = document.querySelectorAll("#tabela-selecao-avaliacoes tbody .check-avaliacao:checked");
+    if (checkboxes.length < 2) {
+      UI.toast("warning", "Selecione ao menos 2 avaliacoes.");
+      return;
+    }
+
+    var selecionados = [];
+    checkboxes.forEach(function (cb) {
+      var av = cacheAvaliacoes.find(function (a) { return String(a.id) === String(cb.value); });
+      if (av) selecionados.push(av);
+    });
+
+    UI.fecharModal("modal-comparativo-avaliacoes");
+    exportarRelatorioComparativoPdf(selecionados);
+  }
+
+  function exportarRelatorioComparativoPdf(selecionados) {
+    const aluno = cacheAlunos.find(function (a) { return a.id === alunoAvaliacaoId; });
+    if (!aluno || !selecionados || selecionados.length < 2) return;
+
+    var sorted = selecionados.slice().sort(function (a, b) {
+      return new Date(a.data) - new Date(b.data);
+    });
+    var maisAntiga = sorted[0];
+    var maisRecente = sorted[sorted.length - 1];
+
+    var personalNome = Auth.getPersonalNome() || "Profissional de Educação Física";
+    var personalCREF = Auth.getPersonalCREF() ? "CREF: " + Auth.getPersonalCREF() : "";
+    var { jsPDF } = window.jspdf;
+    var doc = new jsPDF();
+    var y = UI.adicionarLogoPDF(doc, 10);
+
+    y += 1;
+    doc.setDrawColor(11, 37, 69);
+    doc.setLineWidth(0.5);
+    doc.line(14, y, 196, y);
+    y += 10;
+
+    doc.setFontSize(20);
+    doc.setTextColor(11, 37, 69);
+    doc.text("RELATÓRIO COMPARATIVO", 105, y, { align: "center" });
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(personalNome, 105, y, { align: "center" });
+    y += 5;
+    if (personalCREF) {
+      doc.text(personalCREF, 105, y, { align: "center" });
+      y += 5;
+    }
+
+    y += 3;
+    doc.setDrawColor(11, 37, 69);
+    doc.setLineWidth(0.5);
+    doc.line(14, y, 196, y);
+    y += 8;
+
+    doc.setFontSize(9);
+    doc.setTextColor(80);
+    doc.text(
+      '"Treinamento personalizado elaborado para seu objetivo, com acompanhamento profissional e foco em resultados consistentes."',
+      105, y, { align: "center", maxWidth: 170 }
+    );
+    y += 10;
+
+    doc.setFontSize(11);
+    doc.setTextColor(11, 37, 69);
+    doc.text("Dados do Aluno", 14, y);
+    y += 6;
+    doc.setFontSize(10);
+    doc.setTextColor(50);
+    doc.text("Nome: " + aluno.nome, 14, y);
+    y += 5;
+    doc.text("Idade: " + aluno.idade + " anos", 14, y);
+    y += 5;
+    doc.text("ID: " + aluno.id, 14, y);
+    y += 5;
+    var dataGeracao = new Date().toLocaleDateString("pt-BR");
+    doc.text("Relatório gerado em: " + dataGeracao, 14, y);
+    y += 5;
+    var datasAvaliacoes = sorted.map(function (a) {
+      return new Date(a.data).toLocaleDateString("pt-BR");
+    });
+    doc.text("Avaliacoes: " + sorted.length + " (" + datasAvaliacoes.join(" ate ") + ")", 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setTextColor(11, 37, 69);
+    doc.text("Comparação de Indicadores", 14, y);
+    y += 2;
+
+    function formatarDiferenca(atual, anterior, unidade) {
+      var a = parseFloat(atual);
+      var ant = parseFloat(anterior);
+      if (isNaN(a) || isNaN(ant)) return { texto: "—", cor: [100, 100, 100], positivo: null };
+      var diff = a - ant;
+      if (diff === 0) return { texto: "0" + unidade, cor: [100, 100, 100], positivo: null };
+      var prefixo = diff > 0 ? "+" : "-";
+      return { texto: prefixo + Math.abs(diff).toFixed(1) + unidade.replace(" ", ""), cor: null, positivo: diff > 0 };
+    }
+
+    var indicadores = [
+      { label: "Peso", chave: "peso", unidade: " kg" },
+      { label: "IMC", chave: "imc", unidade: "" },
+      { label: "% Gordura", chave: "percentualGordura", unidade: "%" },
+      { label: "Massa Magra", chave: "massaMagra", unidade: " kg" },
+    ];
+
+    var indicadoresBody = [];
+    var diffs = [];
+
+    indicadores.forEach(function (ind) {
+      var ant = maisAntiga[ind.chave];
+      var rec = maisRecente[ind.chave];
+      var diffInfo = formatarDiferenca(rec, ant, ind.unidade);
+      var cor = diffInfo.cor;
+      if (cor === null && diffInfo.positivo !== null) {
+        cor = diffInfo.positivo ? [40, 167, 69] : [220, 53, 69];
+      }
+      diffs.push({ label: ind.label, ant: ant, rec: rec, diff: diffInfo, unidade: ind.unidade });
+      indicadoresBody.push([
+        ind.label,
+        (ant || "—") + ind.unidade,
+        (rec || "—") + ind.unidade,
+        { content: diffInfo.texto !== "—" ? diffInfo.texto : "—", styles: { textColor: cor || [100, 100, 100] } },
+      ]);
+    });
+
+    var dataAntiga = maisAntiga.data ? new Date(maisAntiga.data).toLocaleDateString("pt-BR") : "R1";
+    var dataRecente = maisRecente.data ? new Date(maisRecente.data).toLocaleDateString("pt-BR") : "R2";
+
+    doc.autoTable({
+      startY: y,
+      head: [["Indicador", dataAntiga, dataRecente, "Evolução"]],
+      body: indicadoresBody,
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [11, 37, 69], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [245, 245, 250] },
+    });
+
+    y = doc.lastAutoTable.finalY + 8;
+
+    var medAnt = {};
+    if (maisAntiga.medidasJSON && maisAntiga.medidasJSON !== "{}") {
+      medAnt = typeof maisAntiga.medidasJSON === "string" ? JSON.parse(maisAntiga.medidasJSON) : maisAntiga.medidasJSON;
+    }
+    var medRec = {};
+    if (maisRecente.medidasJSON && maisRecente.medidasJSON !== "{}") {
+      medRec = typeof maisRecente.medidasJSON === "string" ? JSON.parse(maisRecente.medidasJSON) : maisRecente.medidasJSON;
+    }
+
+    var medBody = [];
+    MEDIDAS_PADRAO.forEach(function (m) {
+      var vAnt = medAnt[m.chave];
+      var vRec = medRec[m.chave];
+      if (vAnt || vRec) {
+        var diffMed = formatarDiferenca(vRec, vAnt, " cm");
+        var corMed = diffMed.cor;
+        if (corMed === null && diffMed.positivo !== null) {
+          corMed = diffMed.positivo ? [40, 167, 69] : [220, 53, 69];
+        }
+        medBody.push([
+          m.nome,
+          vAnt ? vAnt + " cm" : "—",
+          vRec ? vRec + " cm" : "—",
+          { content: diffMed.texto !== "—" ? diffMed.texto : "—", styles: { textColor: corMed || [100, 100, 100] } },
+        ]);
+      }
+    });
+
+    if (medBody.length > 0) {
+      doc.setFontSize(11);
+      doc.setTextColor(11, 37, 69);
+      doc.text("Medidas Corporais", 14, y);
+      y += 2;
+      doc.autoTable({
+        startY: y,
+        head: [["Medida", dataAntiga, dataRecente, "Evolução"]],
+        body: medBody,
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [11, 37, 69], textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [245, 245, 250] },
+      });
+      y = doc.lastAutoTable.finalY + 8;
+    }
+
+    var dobAnt = {};
+    if (maisAntiga.dobrasJSON && maisAntiga.dobrasJSON !== "{}") {
+      dobAnt = typeof maisAntiga.dobrasJSON === "string" ? JSON.parse(maisAntiga.dobrasJSON) : maisAntiga.dobrasJSON;
+    }
+    var dobRec = {};
+    if (maisRecente.dobrasJSON && maisRecente.dobrasJSON !== "{}") {
+      dobRec = typeof maisRecente.dobrasJSON === "string" ? JSON.parse(maisRecente.dobrasJSON) : maisRecente.dobrasJSON;
+    }
+
+    var dobBody = [];
+    DOBRAS_PADRAO.forEach(function (d) {
+      var vAnt = dobAnt[d.chave];
+      var vRec = dobRec[d.chave];
+      if (vAnt || vRec) {
+        var diffDob = formatarDiferenca(vRec, vAnt, " mm");
+        var corDob = diffDob.cor;
+        if (corDob === null && diffDob.positivo !== null) {
+          corDob = diffDob.positivo ? [40, 167, 69] : [220, 53, 69];
+        }
+        dobBody.push([
+          d.nome,
+          vAnt ? vAnt + " mm" : "—",
+          vRec ? vRec + " mm" : "—",
+          { content: diffDob.texto !== "—" ? diffDob.texto : "—", styles: { textColor: corDob || [100, 100, 100] } },
+        ]);
+      }
+    });
+
+    if (dobBody.length > 0) {
+      doc.setFontSize(11);
+      doc.setTextColor(11, 37, 69);
+      doc.text("Dobras Cutâneas", 14, y);
+      y += 2;
+      doc.autoTable({
+        startY: y,
+        head: [["Dobra", dataAntiga, dataRecente, "Evolução"]],
+        body: dobBody,
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [11, 37, 69], textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [245, 245, 250] },
+      });
+      y = doc.lastAutoTable.finalY + 8;
+    }
+
+    if (y > 240) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.setFontSize(12);
+    doc.setTextColor(11, 37, 69);
+    doc.text("Resumo da Evolução", 14, y);
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.setTextColor(50);
+
+    var resumoItens = [];
+    diffs.forEach(function (d) {
+      if (d.diff.texto === "—") return;
+      var ant = parseFloat(d.ant);
+      var rec = parseFloat(d.rec);
+      if (isNaN(ant) || isNaN(rec)) return;
+      var diff = rec - ant;
+      var absDiff = Math.abs(diff);
+      var verbo = diff > 0 ? "aumentou" : "reduziu";
+      var label = d.label === "Massa Magra" ? "Massa muscular" : d.label;
+      resumoItens.push(label + ": " + verbo + " " + absDiff.toFixed(1) + d.unidade + ".");
+    });
+
+    resumoItens.forEach(function (item) {
+      doc.text("- " + item, 14, y);
+      y += 6;
+    });
+
+    var pageCount = doc.internal.getNumberOfPages();
+    for (var i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(personalNome + " " + personalCREF, 14, 285);
+      doc.text("Página " + i + " de " + pageCount, 196, 285, { align: "right" });
+    }
+
+    doc.save("relatorio-comparativo-" + aluno.id + ".pdf");
+    UI.toast("success", "Relatório comparativo gerado com sucesso.");
   }
 
   function configurarPersonalInfo() {
