@@ -1104,8 +1104,17 @@
       .getElementById("avaliacao-peso")
       .addEventListener("input", recalcularIMC);
     document
+      .getElementById("avaliacao-peso")
+      .addEventListener("input", recalcularComposicao);
+    document
       .getElementById("avaliacao-altura-imc")
       .addEventListener("input", recalcularIMC);
+    document
+      .getElementById("tabela-dobras-avaliacao")
+      .addEventListener("input", function (e) {
+        if (e.target.classList.contains("input-dobra"))
+          recalcularComposicao();
+      });
 
     UI.registrarFechamentoModal(
       document.getElementById("modal-avaliacao-detalhes"),
@@ -1470,6 +1479,7 @@
     );
     preencherTabelaDobras(dobrasAnteriores);
 
+    recalcularComposicao();
     irParaPasso(1);
     UI.abrirModal("modal-avaliacao");
   }
@@ -1535,6 +1545,7 @@
         : {};
     preencherTabelaDobras(dobrasExistentes);
 
+    recalcularComposicao();
     irParaPasso(1);
     UI.abrirModal("modal-avaliacao");
   }
@@ -1605,6 +1616,73 @@
       UI.toast("danger", "Erro ao salvar avaliação", erro.message);
     } finally {
       UI.setBotaoCarregando(btn, false);
+    }
+  }
+
+  function recalcularComposicao() {
+    const peso = normalizarNumero(
+      document.getElementById("avaliacao-peso").value,
+    );
+    const gorduraInput = document.getElementById("avaliacao-gordura");
+    const massaInput = document.getElementById("avaliacao-massa-magra");
+    const info = document.getElementById("avaliacao-composicao-info");
+
+    const aluno = cacheAlunos.find((a) => a.id === alunoAvaliacaoId);
+    const sexo = aluno ? String(aluno.sexo || "").trim().toLowerCase() : "";
+    const feminino = sexo.indexOf("f") === 0;
+    const masculino = sexo.indexOf("m") === 0;
+    const idade = normalizarNumero(aluno ? aluno.idade : "");
+
+    let soma = 0;
+    let incompletas = false;
+    document.querySelectorAll(".input-dobra").forEach(function (inp) {
+      const valor = normalizarNumero(inp.value);
+      if (valor > 0) soma += valor;
+      else incompletas = true;
+    });
+
+    const semDadosCadastrais = (!feminino && !masculino) || idade <= 0;
+    const calculavel = peso > 0 && !incompletas && !semDadosCadastrais;
+
+    let usarAuto = false;
+    if (calculavel) {
+      const dc = masculino
+        ? 1.112 -
+          0.00043499 * soma +
+          0.00000055 * soma * soma -
+          0.00028826 * idade
+        : 1.097 -
+          0.00046971 * soma +
+          0.00000056 * soma * soma -
+          0.00012828 * idade;
+      if (dc > 0) {
+        const gordura = (4.95 / dc - 4.5) * 100;
+        if (gordura >= 0) {
+          const massaGorda = peso * (gordura / 100);
+          gorduraInput.value = gordura.toFixed(1).replace(".", ",");
+          massaInput.value = (peso - massaGorda).toFixed(1).replace(".", ",");
+          usarAuto = true;
+        }
+      }
+    }
+
+    gorduraInput.readOnly = usarAuto;
+    massaInput.readOnly = usarAuto;
+    const tituloAuto = "Calculado automaticamente pelas dobras cutâneas.";
+    gorduraInput.title = usarAuto ? tituloAuto : "";
+    massaInput.title = usarAuto ? tituloAuto : "";
+
+    if (!info) return;
+    if (usarAuto) {
+      info.textContent = tituloAuto;
+      info.style.display = "";
+    } else if (peso > 0 && !incompletas && semDadosCadastrais) {
+      info.textContent =
+        "Informe o sexo e a idade do aluno para o cálculo automático de composição corporal.";
+      info.style.display = "";
+    } else {
+      info.textContent = "";
+      info.style.display = "none";
     }
   }
 
